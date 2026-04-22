@@ -8,20 +8,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
+#include <windows.h>
 
 #define MAX_SYMBOL 10       
 #define MAX_TIME 100.0      
 #define INITIAL_CASH 10000
 
 #define PRICE_UPDATE 1
-#define TRADE_ORDER 2
+#define BUY_ORDER    2
+#define SELL_ORDER   3
 
 
 // 1. Single stock representation
 typedef struct {
     char symbol[MAX_SYMBOL]; 
     double currentPrice;     
-    int id;                  
+    int id;
+
 } Stock;
 
 // 2. Shared event structure for both price updates and trade orders
@@ -43,6 +47,7 @@ typedef struct {
 
     double** priceHistory;
     int historyCols;
+    int historyCapacity;
 } Market;
 
 #endif
