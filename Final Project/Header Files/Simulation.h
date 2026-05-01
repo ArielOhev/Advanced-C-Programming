@@ -71,7 +71,14 @@ void processTrade(Market* market, int stockID, double time, int amount, int isBu
 void handleEvent(Market* market, Event* event, Event** head, FILE* logFile);
 
 
-
+/* * Pauses the simulation to provide the user to manually trigger
+ * buy/sell orders.
+ * Parameters:
+ * market: Pointer to the market data (to show cash and holdings).
+ * currentTime: The current virtual time when the menu is accessed.
+ * head: Pointer to the list head to inject new trade events or the next menu event.
+ */
+void processUserMenu(Market* market, double currentTime, Event** head);
 
 
 

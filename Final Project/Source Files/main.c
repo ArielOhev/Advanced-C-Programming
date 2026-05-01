@@ -4,23 +4,24 @@
 
 int main() {
 
+	//Open log file for writing
     FILE* logFile = fopen("simulation_log.txt", "w");
-    double maxSimulationTime = 100.0; 
-    double currentTime = 0.0;
 
     Market* market = initMarket("stocks.txt");
-
     Event* eventList = NULL;
+    double maxSimulationTime = MAX_TIME; 
+    double currentTime = 0.0;
+
+	// Schedule first price updates for all stocks
     for (int i = 0; i < market->numStocks; i++) {
-        insertEvent(&eventList, 0.0, PRICE_UPDATE,0,i);
+        insertEvent(&eventList, 0.0, PRICE_UPDATE,i,0);
     }
 
+	// start user menu at 10.0 seconds
+    insertEvent(&eventList, 10.0, USER_MENU, 0, 0);
+
+	//start simulation loop
     printf("\nSimulation Started\n");
-
-    insertEvent(&eventList, 5.0, BUY_ORDER, 0, 10);
-    insertEvent(&eventList, 15.0, SELL_ORDER, 0, 5);
-    insertEvent(&eventList, 20.0, BUY_ORDER, 1, 999999);
-
     while (eventList != NULL && currentTime < maxSimulationTime) {
 
         Event* currentEvent = popEvent(&eventList);
@@ -32,6 +33,7 @@ int main() {
         Sleep(500);
     }
 
+	// End of simulation
     printf("\nSimulation reached Max Time. Cleaning up...\n");
 	printMarketHistory(market);
 

@@ -18,6 +18,7 @@
 #define PRICE_UPDATE 1
 #define BUY_ORDER    2
 #define SELL_ORDER   3
+#define USER_MENU    4
 
 
 // 1. Single stock representation
@@ -49,5 +50,11 @@ typedef struct {
     int historyCols;
     int historyCapacity;
 } Market;
+
+//4. StockResult structure to hold the stocks and the precentege change.
+typedef struct {
+    char symbol[MAX_SYMBOL];
+    double precentege;
+} StockResult;
 
 #endif

@@ -68,10 +68,16 @@ void freeEvents(Event* head){
 void processPriceUpdate(Market* market, int stockID, double time, Event** head, FILE* logFile) {
     Stock* s = &market->stocks[stockID];
 
-    // new price
-    double changePercent = ((rand() % 4001) - 2000) / 100000.0;
+    // 1. new price
+    double changePercent = ((rand() % 20001) - 10000) / 100000.0;
     double oldPrice = s->currentPrice;
     s->currentPrice *= (1 + changePercent);
+
+	//Validate the number is not negative or zero
+    if (s->currentPrice < 0.01) {
+        s->currentPrice = 0.01; 
+    }
+
 
     // 2. Log
     if (logFile) {
@@ -106,6 +112,8 @@ void processTrade(Market* market, int stockID, double time, int amount, int isBu
                 fprintf(logFile, "[Time %.2f] BUY FAILED: Insufficient funds for %d %s\n", time, amount, s->symbol);
             }
         }
+
+        Sleep(1000);
     }
     else {
         if (market->ownedAmount[stockID] >= amount) {
@@ -124,6 +132,7 @@ void processTrade(Market* market, int stockID, double time, int amount, int isBu
                 fprintf(logFile, "[Time %.2f] SELL FAILED: Not enough shares of %s\n", time, s->symbol);
             }
         }
+        Sleep(1000);
     }
 }
 
@@ -144,6 +153,10 @@ void handleEvent(Market* market, Event* event, Event** head, FILE* logFile) {
         processTrade(market, event->stockID, event->eventTime, event->amount, 0, logFile);
         break;
 
+    case USER_MENU:
+        processUserMenu(market, event->eventTime, head);
+        break;
+
     default:
         printf("Unknown event type %d\n", event->type);
     }
@@ -151,3 +164,46 @@ void handleEvent(Market* market, Event* event, Event** head, FILE* logFile) {
     free(event);
 }
 
+void processUserMenu(Market* market, double currentTime, Event** head) {
+    int choice;
+    int searchID, qty, index;
+
+    printPortfolio(market);
+
+    printf("\n\nPAUSED AT TIME %.2f | Available CASH: %.2f\n", currentTime, market->cash);
+    printf("\n1. Buy Stock");
+    printf("\n2. Sell Stock");
+    printf("\n3. Continue Simulation (Press Any Key to continue)");
+    printf("\nChoice: ");
+    scanf("%d", &choice);
+
+    switch (choice) {
+    case 1:
+    case 2:
+        printf("Enter Stock ID: ");
+        scanf("%d", &searchID);
+        index = findStockIndexByID(market, searchID);
+
+        if (index == -1) {
+            printf("\n[!] Error: Stock ID %d not found!\n", searchID);
+            printf("Press Any Key to continue...");
+            while (getchar() != '\n'); getchar();
+            break;
+        }
+
+        printf("Enter Quantity: ");
+        scanf("%d", &qty);
+        insertEvent(head, currentTime, (choice == 1 ? BUY_ORDER : SELL_ORDER), index, qty);
+        break;
+
+    case 3:
+        printf("\nResuming simulation. Press Any Key to continue...");
+        while (getchar() != '\n'); getchar();
+        break;
+
+    default:
+        break;
+    }
+
+    insertEvent(head, currentTime + 10.0, USER_MENU, 0, 0);
+}
